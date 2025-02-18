@@ -1,0 +1,54 @@
+body {
+    background-color: #FFD966;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+}
+
+.title {
+    font-family: 'Hurricane', sans-serif;
+    font-size: 4rem;
+    font-weight: lighter;
+    color: #333;
+}
+
+.illustration {
+    width: 150px;
+    margin: 20px 0;
+}
+
+.subtitle {
+    font-family: 'Ibarra Real Nova', serif;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2E7D32;
+    color: #FFE41C;
+    text-decoration: none;
+    font-family: 'Ibarra Real Nova', serif;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #1c4d29;
+}
+
+.subtitle a {
+    text-decoration: none;
+    color: #2E7D32;
+}
+
+.subtitle a:hover {
+    text-decoration: underline;
+}
+

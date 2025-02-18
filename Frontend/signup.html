@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Let'sTalk</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ibarra+Real+Nova&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background-color: #FFD966;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Ibarra Real Nova', serif;
+            text-align: center;
+            margin: 0;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-family: 'Ibarra Real Nova', serif;
+            color: #2E7D32;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .signup-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            align-self: flex-start;
+            font-size: 1rem;
+            color: #070707;
+        }
+
+        input {
+            width: 270px;
+            padding: 5px 10px;
+            border: none;
+            border-bottom: 2px solid #2E7D32;
+            outline: none;
+            background: transparent;
+            font-size: 1rem;
+            margin-top: -15px;
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 300px;
+            margin-top: -15px;
+        }
+
+        .toggle-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 300px;
+            padding: 10px;
+            background-color: #2E7D32;
+            color: #FFE41C;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1c4d29;
+        }
+
+        .or-text {
+            font-size: 1rem;
+            color: #2E7D32;
+        }
+
+        .social-btn {
+            width: 300px;
+            padding: 10px;
+            background-color: #f7f7f7;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-family: 'Ibarra Real Nova', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .social-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .login-text {
+            font-size: 1rem;
+            color: black;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Create an Account</h1>
+    <form id="signupForm" class="signup-form">
+        <label for="username">Username</label>
+        <input type="text" id="name" name="username" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Password</label>
+        <div class="password-wrapper">
+            <input type="password" id="password" name="password" required>
+            <img src="./assets/hide.png" alt="Hide Icon" id="togglePassword" class="toggle-icon">
+        </div>
+
+        <p class="or-text">Or Sign Up with</p>
+
+        <button type="button" class="social-btn">
+            <img src="./assets/facebook.png" alt="Facebook Logo" class="social-icon"> Sign Up with Facebook
+        </button>
+
+        <button type="button" class="social-btn">
+            <img src="./assets/google.png" alt="Google Logo" class="social-icon"> Sign Up with Google
+        </button>
+        
+        <button type="submit" class="btn">Sign Up</button>
+    </form>
+
+    <script>
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+
+        togglePassword.addEventListener("click", function() {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.src = "./assets/show.png"; // Change to show icon
+            } else {
+                passwordInput.type = "password";
+                togglePassword.src = "./assets/hide.png"; // Change back to hide icon
+            }
+        });
+
+        // Handle signup form submission
+const signupForm = document.getElementById('signupForm');
+
+signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Prevent form from refreshing the page
+
+    const username = document.getElementById('name').value; // Use 'username' instead of 'name'
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, email, password }), // Send the correct 'username' variable
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('Registration successful! Please log in.');
+            // Redirect to login page after successful registration
+            window.location.href = 'login.html';
+        } else {
+            alert(data.message); // Show error message from server
+        }
+    } catch (error) {
+        alert('An error occurred. Please try again.');
+        console.error(error);
+    }
+});
+
+    </script>
+</body>
+</html>

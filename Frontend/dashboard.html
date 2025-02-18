@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #FFD966;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 330px;
+            background-color: #B2EBA7;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        /* Profile Section */
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .profile h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #2E7D32;
+        }
+
+        .profile p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 90%;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        /* Chat List */
+        .chat-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Chat Item */
+        .chat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Side - Avatar & Name */
+        .chat-item .left {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .chat-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .chat-item .chat-info h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #2E7D32;
+        }
+
+        .chat-item .chat-info p {
+            margin: 0;
+            font-size: 12px;
+            color: #555;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Right Side - Time & Icon */
+        .chat-item .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
+
+        .chat-item .time {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        .chat-item .status-icon {
+            width: 15px;
+            height: 15px;
+            margin-top: 5px;
+        }
+
+        /* Main Chat Section */
+        .main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-chat h1 {
+            font-size: 2rem;
+            color: #2E7D32;
+        }
+
+        .main-chat img {
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        /* Logout Button */
+        .logout {
+            margin-top: 20px;
+        }
+
+        .logout button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .logout button:hover {
+            background-color: #1c4d29;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile">
+                <img src="./assets/profile.jpg" alt="Profile Image" class="avatar">
+                <div class="info">
+                    <h2>Loading...</h2>
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="Search Here...">
+            </div>
+
+            <!-- Chat List -->
+            <div class="chat-list">
+                <!-- Users will be dynamically populated here -->
+            </div>
+
+            <!-- Logout Button -->
+            <div class="logout">
+                <button>Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Chat Section -->
+        <div class="main-chat">
+            <h1>Get Started with your chats</h1>
+            <img src="./assets/landing.png" alt="Chat Illustration">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Check if the user is already logged in (check for JWT token in localStorage)
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Get logged-in user data and users list
+                await getUserData(token);
+                await getUsersList(token);
+            }
+
+            // Handle login (for example, on form submit or button click)
+            document.getElementById("loginForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                const response = await fetch('http://localhost:5000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store the JWT token in localStorage
+                    localStorage.setItem('token', data.token);
+
+                    // Update profile and chat list after login
+                    await getUserData(data.token);
+                    await getUsersList(data.token);
+                } else {
+                    alert(data.message);
+                }
+            });
+
+            // Function to get logged-in user data (username)
+            async function getUserData(token) {
+                const response = await fetch('http://localhost:5000/dashboard', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Update the profile section with logged-in user's username
+                    document.querySelector(".profile h2").innerText = data.username;
+                    document.querySelector(".profile p").innerText = "Junior Developer"; // You can modify this to display more info
+                } else {
+                    alert(data.message);
+                }
+            }
+
+            // Function to get list of all users and populate the sidebar
+            async function getUsersList(token) {
+                const response = await fetch('http://localhost:5000/users', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const chatListContainer = document.querySelector(".chat-list");
+                    chatListContainer.innerHTML = ""; // Clear existing chat list
+
+                    // Dynamically populate chat list
+                    data.users.forEach(user => {
+                        const chatItem = document.createElement('div');
+                        chatItem.classList.add('chat-item');
+                        chatItem.innerHTML = `
+                            <div class="left">
+                                <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                                <div class="chat-info">
+                                    <h3>${user.username}</h3>
+                                    <p>Last message here...</p>
+                                </div>
+                            </div>
+                            <div class="right">
+                                <span class="time">10:35 AM</span>
+                                <img src="./assets/1.png" alt="Status" class="status-icon">
+                            </div>
+                        `;
+                        chatListContainer.appendChild(chatItem);
+                    });
+                } else {
+                    alert(data.message);
+                }
+            }
+
+            // Logout function
+            document.querySelector(".logout button").addEventListener("click", () => {
+                localStorage.removeItem('token'); 
+                window.location.reload(); 
+            });
+        });
+    </script>
+</body>
+</html>

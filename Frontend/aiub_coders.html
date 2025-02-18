@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <style>
+        :root {
+    --color-sidebar: #C2F3C6;
+    --color-main: #FFE17F;
+    --color-header: #E6EEFF;
+    --color-sent: #0B5B2E;
+    --color-received: #ffffff;
+}
+
+.chat-container {
+    display: flex;
+    height: 100vh;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 320px;
+    background-color: var(--color-sidebar);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.profile {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e2e2e2;
+}
+
+.profile__name {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.profile__title {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.profile__edit {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Search Styles */
+.search {
+    padding: 0.5rem 1rem;
+    position: relative;
+}
+
+.search__input {
+    width: 100%;
+    padding: 0.5rem 2rem;
+    border-radius: 20px;
+    border: none;
+    background-color: white;
+    font-size: 0.875rem;
+}
+
+.search__icon {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Chat List Styles */
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.chat-list__item {
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.chat-list__item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.chat-list__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e2e2e2;
+}
+
+.chat-list__content {
+    flex: 1;
+}
+
+.chat-list__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.chat-list__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.chat-list__time {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.chat-list__message {
+    font-size: 0.875rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-list__status {
+    background-color: #0B5B2E;
+    color: white;
+    font-size: 0.75rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-list__read-status {
+    align-self: flex-end;
+}
+
+/* Main Chat Area Styles */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    height: 64px;
+    padding: 0 1rem;
+    background-color: var(--color-header);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.chat-header__info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.chat-header__avatar,
+.avatar {
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%;
+    object-fit: cover; 
+}
+.chat-header__name {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.chat-header__status {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.chat-header__actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Messages Area Styles */
+.messages {
+    flex: 1;
+    background-color: var(--color-main);
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    display: flex;
+}
+
+.message__bubble {
+    max-width: 80%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background-color: var(--color-received);
+}
+
+.message--sent {
+    justify-content: flex-end;
+}
+
+.message--sent .message__bubble {
+    background-color: var(--color-sent);
+    color: white;
+}
+
+.message__time {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.message--sent .message__time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Input Area Styles */
+.input-area {
+    padding: 1rem;
+    background-color: var(--color-header);
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+}
+
+.input-container__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.input-container__button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.input-container__actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-container__send {
+    background-color: var(--color-sent);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Logout Button Styles */
+.logout {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+ /* Global Styles */
+ body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #FFD966;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+        /* Layout */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 330px;
+            background-color: #B2EBA7;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        /* Profile Section */
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .profile h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #2E7D32;
+        }
+
+        .profile p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 90%;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        /* Chat List */
+        .chat-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Chat Item */
+        .chat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Side - Avatar & Name */
+        .chat-item .left {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .chat-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .chat-item .chat-info h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #2E7D32;
+        }
+
+        .chat-item .chat-info p {
+            margin: 0;
+            font-size: 12px;
+            color: #555;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Right Side - Time & Icon */
+        .chat-item .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
+
+        .chat-item .time {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        .chat-item .status-icon {
+            width: 15px;
+            height: 15px;
+            margin-top: 5px;
+        }
+
+        /* Main Chat Section */
+        .main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-chat h1 {
+            font-size: 2rem;
+            color: #2E7D32;
+        }
+
+        .main-chat img {
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        /* Logout Button */
+        .logout {
+            margin-top: 20px;
+        }
+
+        .logout button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .logout button:hover {
+            background-color: #1c4d29;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile">
+                <img src="./assets/profile.jpg" alt="Profile Image" class="avatar">
+                <div class="info">
+                    <h2>Ei Emon</h2>
+                    <p>Junior Developer</p>
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="Search Here...">
+            </div>
+
+            <!-- Chat List -->
+            <div class="chat-list">
+                <div class="chat-item">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Azizul Hakim</h3>
+                            <p>Hi, are you available tomorrow?</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/3.png" alt="Status" class="status-icon">
+                    </div>
+                </div>
+
+                <div class="chat-item">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Israt Zahan</h3>
+                            <p>Nice one. Will do it tomorrow.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/1.png" alt="Status" class="status-icon">
+                    </div>
+                </div>
+
+                <div class="chat-item" onclick="location.href='abdullah.html'">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Abdullah Al Mamun</h3>
+                            <p>Sure! I'll update you once it's done.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/sent.jpeg" alt="Status" class="status-icon">
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Abdus Samad</h3>
+                            <p>Sure! I'll update you once it's done.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/1.png" alt="Status" class="status-icon">
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Adil Ahnaf</h3>
+                            <p>Sure! I'll update you once it's done.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/sent.jpeg" alt="Status" class="status-icon">
+                    </div>
+                </div>
+                <div class="chat-item">
+                    <div class="left">
+                        <img src="./assets/profile.jpg" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>Syeda Suchy</h3>
+                            <p>Sure! I'll update you once it's done.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/1.png" alt="Status" class="status-icon">
+                    </div>
+                </div>
+                <div class="chat-item" onclick="location.href='aiub_coders.html'">
+                    <div class="left">
+                        <img src="./assets/group.png" alt="User Image" class="avatar">
+                        <div class="chat-info">
+                            <h3>AIUB_Coders</h3>
+                            <p>Sure! I'll update you once it's done.</p>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="time">10:35 AM</span>
+                        <img src="./assets/3.png" alt="Status" class="status-icon">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logout Button -->
+            <div class="logout">
+                <button>Logout</button>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <main class="main">
+            <!-- Chat Header -->
+            <header class="chat-header">
+                <div class="chat-header__info">
+                    <div class="chat-header__avatar">
+                        <img src="./assets/group.png" alt="User Image" class="avatar" >
+                    </div>
+                    <div>
+                        
+                        <h2 class="chat-header__name">AIUB_Coders</h2>
+                        <p class="chat-header__status">online</p>
+                    </div>
+                </div>
+                <div class="chat-header__actions">
+                    <button class="icon-button"><img src="./assets/search.png" alt="Search" class="icon"></button>
+                    <button class="icon-button"><img src="./assets/love.png" alt="Favorite" class="icon"></button>
+                    <button class="icon-button"><img src="./assets/Phone call.png" alt="Call" class="icon"></button>
+                    <button class="icon-button"><img src="./assets/video.png" alt="Video Call" class="icon"></button>
+                </div>
+            </header>
+
+            <!-- Messages Area -->
+            <div class="messages">
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Oh no, what's the issue? Maybe we can help!</p>
+                        <span class="message__time">10:32 AM</span>
+                    </div>
+                </div>
+                <div class="message message--sent">
+                    <div class="message__bubble">
+                        <p>Same here! Got stuck in a React state issue. 😅</p>
+                        <span class="message__time">10:31 AM</span>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Oh no, what's the issue? Maybe we can help!</p>
+                        <span class="message__time">10:32 AM</span>
+                    </div>
+                </div>
+                <div class="message message--sent">
+                    <div class="message__bubble">
+                        <p>My component isn't re-rendering even when the state updates.</p>
+                        <span class="message__time">10:33 AM</span>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Sounds like you might be mutating the state instead of setting it correctly. Are you using useState?</p>
+                        <span class="message__time">10:32 AM</span>
+                    </div>
+                </div>
+                <div class="message message--sent">
+                    <div class="message__bubble">
+                        <p>My component isn't re-rendering even when the state updates.</p>
+                        <span class="message__time">10:33 AM</span>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Classic mistake! Been there. 😄</p>
+                        <span class="message__time">10:35 AM</span>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Btw, did you all see the new Tailwind update? Looks awesome!</p>
+                        <span class="message__time">10:35 AM</span>
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="message__bubble">
+                        <p>Yeah! Some cool new utility classes. We should try them in our next project.</p>
+                        <span class="message__time">10:35 AM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <button class="input-container__button">
+                        <img src="./assets/mic.png" alt="Voice" class="icon">
+                    </button>
+                    <input type="text" class="input-container__input" placeholder="Write Something...">
+                    <div class="input-container__actions">
+                        <button class="input-container__button">
+                            <img src="./assets/file.png" alt="Attach" class="icon">
+                        </button>
+                        <button class="input-container__button">
+                            <img src="./assets/camera.png" alt="Camera" class="icon">
+                        </button>
+                        <button class="input-container__button">
+                            <img src="./assets/emoji.png" alt="Emoji" class="icon">
+                        </button>
+                    </div>
+                    <button class="input-container__send">
+                        <img src="./assets/send.png" alt="Send" class="icon">
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
