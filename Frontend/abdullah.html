@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Dashboard</title>
+
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #FFD966;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 330px;
+            background-color: #B2EBA7;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        /* Profile Section */
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .profile h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #2E7D32;
+        }
+
+        .profile p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 90%;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        /* Chat List */
+        .chat-list {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        /* Chat Item */
+        .chat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-item:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left Side - Avatar & Name */
+        .chat-item .left {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .chat-item .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .chat-item .chat-info h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #2E7D32;
+        }
+
+        .chat-item .chat-info p {
+            margin: 0;
+            font-size: 12px;
+            color: #555;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Right Side - Time & Icon */
+        .chat-item .right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+            min-width: 50px;
+        }
+
+        .chat-item .time {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        .chat-item .status-icon {
+            width: 15px;
+            height: 15px;
+            margin-top: 5px;
+        }
+
+        /* Main Chat Section */
+        .main-chat {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .main-chat h1 {
+            font-size: 2rem;
+            color: #2E7D32;
+        }
+
+        .main-chat img {
+            width: 300px;
+            margin-top: 20px;
+        }
+
+        /* Logout Button */
+        .logout {
+            margin-top: 20px;
+        }
+
+        .logout button {
+            width: 100%;
+            padding: 10px;
+            background-color: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .logout button:hover {
+            background-color: #1c4d29;
+        }
+
+        .chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.chat-user {
+  display: block;
+  padding: 12px;
+  background-color: #f4f4f4;
+  border-radius: 15px;
+  text-decoration: none;
+  color: #2E7D32;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+.chat-user:hover {
+  background-color: #d3d3d3;
+  transform: scale(1.05); /* Optional: adds a small zoom effect on hover */
+}
+
+.chat-user p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.chat-user:active {
+  background-color: #bbb; /* Optional: color when clicked */
+}
+
+
+/* Chat Area */
+.chat-area {
+    width: 80%;
+    max-width: 800px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Messages */
+.messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+/* Message */
+.message {
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f1f1f1;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Message Content */
+.message .content {
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+/* Send Message Area */
+.message-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.message-input textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    resize: none;
+}
+
+.message-input button {
+    padding: 10px 20px;
+    background-color: #2E7D32;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.message-input button:hover {
+    background-color: #1c4d29;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Profile Section -->
+            <div class="profile">
+                <img src="./assets/profile.jpg" alt="Profile Image" class="avatar">
+                <div class="info">
+                    <h2 id="username"></h2> <!-- Set an ID here for the username -->
+                    <p id="total-users"></p> <!-- Set an ID here for the total users -->
+                </div>
+            </div>
+
+            <!-- Search Box -->
+            <div class="search-box">
+                <input type="text" placeholder="Search Here...">
+            </div>
+
+            <!-- Chat List -->
+            <div class="chat-list">
+                <!-- Users will be dynamically populated here -->
+            </div>
+
+            <!-- Logout Button -->
+        <div class="logout">
+            <button id="logoutButton">Logout</button>
+        </div>
+        </div>
+
+        <!-- Main Chat Section -->
+<div class="main-chat">
+    <h1 id="chatUser">Select a user to start chatting</h1>
+    
+    <div class="chat-area">
+        <div class="messages" id="messages">
+            <!-- Messages will be dynamically populated here -->
+        </div>
+
+        <div class="message-input">
+            <textarea id="messageInput" placeholder="Type a message..." rows="3"></textarea>
+            <button id="sendMessageButton">Send</button>
+        </div>
+    </div>
+</div>
+
+    </div>
+
+    <script>
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            console.log("No token found, redirecting to login.");
+            window.location.href = "login.html";
+        }
+
+        let senderId = null;
+        let receiverId = null; // Add a variable to store receiver's ID
+
+        // Function to fetch dashboard data (Username & Total Users)
+        async function loadDashboard() {
+            try {
+                const response = await fetch("http://localhost:5000/dashboard", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    senderId = data.userId; // Set senderId
+                    document.getElementById("username").textContent = data.username;
+                    document.getElementById("total-users").textContent = `Total users: ${data.totalUsers}`;
+                } else {
+                    console.error("Failed to retrieve data:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+            }
+        }
+
+        // Function to load the chat list
+        async function loadChatList() {
+            try {
+                const response = await fetch('http://localhost:5000/chat-list', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const chatListDiv = document.querySelector('.chat-list');
+                    chatListDiv.innerHTML = ''; // Clear existing list
+
+                    data.users.forEach(user => {
+                        const userElement = document.createElement('a');
+                        userElement.classList.add('chat-user');
+                        userElement.href = '#';
+                        userElement.innerHTML = `<p>${user.username}</p>`;  // Display user's username
+
+                        // Set receiverId when a user is selected
+                        userElement.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            receiverId = user.id; // Set receiverId dynamically
+                            loadChatWithUser(receiverId); // Load chat with the selected user
+                        });
+
+                        chatListDiv.appendChild(userElement);
+                    });
+                } else {
+                    console.error("Failed to fetch chat list:", data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching chat list:", error);
+            }
+        }
+
+        // Function to load messages with a selected user
+        async function loadChatWithUser(receiverId) {
+    const chatUserName = document.getElementById("chatUser");
+
+    try {
+        const response = await fetch(`http://localhost:5000/get-user/${receiverId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.username) {
+            chatUserName.textContent = `Chat with ${data.username}`;  // Display receiver's username
+        } else {
+            chatUserName.textContent = `Error: User not found`;
+        }
+    } catch (error) {
+        console.error("Error fetching receiver details:", error);
+        chatUserName.textContent = `Error: Unable to fetch user`;
+    }
+
+    document.getElementById("messages").innerHTML = '<p>Loading messages...</p>';
+
+    // Fetch messages between the logged-in user and the receiver
+    try {
+        const messagesResponse = await fetch(`http://localhost:5000/messages/${receiverId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const messagesData = await messagesResponse.json();
+
+        if (messagesResponse.ok) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = ''; // Clear previous messages
+
+            if (messagesData.messages.length === 0) {
+                messagesDiv.innerHTML = `<p>No messages yet.</p>`; // Display a friendly message if no messages
+            } else {
+                messagesData.messages.forEach(message => {
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message');
+                    messageElement.innerHTML = ` 
+                        <div class="sender">${message.sender}: </div>
+                        <div class="content">${message.message}</div>
+                        <div class="timestamp">${new Date(message.timestamp).toLocaleString()}</div>
+                    `;
+                    messagesDiv.appendChild(messageElement);
+                });
+            }
+        } else {
+            console.error('Failed to fetch messages:', messagesData.message);
+        }
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+    }
+}
+
+
+        // Function to send a message
+        document.getElementById('sendMessageButton').addEventListener('click', async () => {
+            const message = document.getElementById('messageInput').value;
+            if (message.trim() === "") return;
+
+            if (!receiverId) {
+                console.error("Receiver ID is not set.");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sender_id: senderId,  // Sender's ID
+                        receiver_id: receiverId, // Receiver's ID
+                        message: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('messageInput').value = ''; // Clear input field
+                    loadChatWithUser(receiverId); // Reload chat with the selected user
+                } else {
+                    console.error('Failed to send message:', data.message);
+                }
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        });
+
+        // Logout function
+        document.getElementById('logoutButton').addEventListener('click', async function() {
+            try {
+                const response = await fetch('http://localhost:5000/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.removeItem('token'); // Clear token from storage
+                    window.location.href = "index.html"; // Redirect to login page
+                } else {
+                    console.error("Logout failed:", data.message);
+                }
+            } catch (error) {
+                console.error("Error during logout:", error);
+            }
+        });
+
+        // Load dashboard and chat list on page load
+        loadDashboard();
+        loadChatList();
+
+    </script>
+
+</body>
+</html>

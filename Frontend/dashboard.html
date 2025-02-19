@@ -187,6 +187,39 @@
         .logout button:hover {
             background-color: #1c4d29;
         }
+
+        .chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.chat-user {
+  display: block;
+  padding: 12px;
+  background-color: #f4f4f4;
+  border-radius: 15px;
+  text-decoration: none;
+  color: #2E7D32;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+.chat-user:hover {
+  background-color: #d3d3d3;
+  transform: scale(1.05); /* Optional: adds a small zoom effect on hover */
+}
+
+.chat-user p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.chat-user:active {
+  background-color: #bbb; /* Optional: color when clicked */
+}
+
     </style>
 </head>
 <body>
@@ -197,8 +230,8 @@
             <div class="profile">
                 <img src="./assets/profile.jpg" alt="Profile Image" class="avatar">
                 <div class="info">
-                    <h2>Loading...</h2>
-                    <p>Loading...</p>
+                    <h2 id="username"></h2> <!-- Set an ID here for the username -->
+                    <p id="total-users"></p> <!-- Set an ID here for the total users -->
                 </div>
             </div>
 
@@ -213,9 +246,9 @@
             </div>
 
             <!-- Logout Button -->
-            <div class="logout">
-                <button>Logout</button>
-            </div>
+        <div class="logout">
+            <button id="logoutButton">Logout</button>
+        </div>
         </div>
 
         <!-- Main Chat Section -->
@@ -226,101 +259,122 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            // Check if the user is already logged in (check for JWT token in localStorage)
-            const token = localStorage.getItem('token');
-            if (token) {
-                // Get logged-in user data and users list
-                await getUserData(token);
-                await getUsersList(token);
-            }
+        // Fetch the token from localStorage (or sessionStorage)
+        const token = localStorage.getItem("token");  // Replace with your token storage method
 
-            // Handle login (for example, on form submit or button click)
-            document.getElementById("loginForm").addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                const email = document.getElementById("email").value;
-                const password = document.getElementById("password").value;
-
-                const response = await fetch('http://localhost:5000/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Store the JWT token in localStorage
-                    localStorage.setItem('token', data.token);
-
-                    // Update profile and chat list after login
-                    await getUserData(data.token);
-                    await getUsersList(data.token);
+        // Check if the token is available
+        if (token) {
+            // API call to fetch dashboard data
+            fetch("http://localhost:5000/dashboard", {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.username && data.totalUsers) {
+                    // Update the HTML with the fetched data
+                    document.getElementById("username").textContent = data.username;
+                    document.getElementById("total-users").textContent = `Total users: ${data.totalUsers}`;
                 } else {
-                    alert(data.message);
+                    console.error("Failed to retrieve data:", data.message);
                 }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+        } else {
+            console.log("No token found, please log in.");
+            window.location.href = "login.html";  // Redirect to login page if no token is found
+        }
+
+
+        
+        // Function to load chat list
+        async function loadChatList() {
+            const token = localStorage.getItem('token'); // Assuming you store the JWT in localStorage after login
+            
+            if (!token) {
+            console.log("User not logged in.");
+            return;
+            }
+            
+            try {
+            const response = await fetch('http://localhost:5000/chat-list', {
+                method: 'GET',
+                headers: {
+                'Authorization': `Bearer ${token}`, // Attach token to Authorization header
+                },
             });
 
-            // Function to get logged-in user data (username)
-            async function getUserData(token) {
-                const response = await fetch('http://localhost:5000/dashboard', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` },
+            const data = await response.json();
+            
+            if (response.ok) {
+                const chatListDiv = document.querySelector('.chat-list');
+                chatListDiv.innerHTML = ''; // Clear the list before populating
+
+                data.users.forEach(user => {
+                const userElement = document.createElement('a');
+                userElement.classList.add('chat-user');
+                userElement.href = `/chat/${user.username}`; // Redirect to a dynamic URL with the username
+                userElement.innerHTML = `
+                    <p>${user.username}</p>
+                `;
+                chatListDiv.appendChild(userElement);
                 });
-
-                const data = await response.json();
-                if (response.ok) {
-                    // Update the profile section with logged-in user's username
-                    document.querySelector(".profile h2").innerText = data.username;
-                    document.querySelector(".profile p").innerText = "Junior Developer"; // You can modify this to display more info
-                } else {
-                    alert(data.message);
-                }
+            } else {
+                console.log("Failed to fetch chat list:", data.message);
             }
-
-            // Function to get list of all users and populate the sidebar
-            async function getUsersList(token) {
-                const response = await fetch('http://localhost:5000/users', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    const chatListContainer = document.querySelector(".chat-list");
-                    chatListContainer.innerHTML = ""; // Clear existing chat list
-
-                    // Dynamically populate chat list
-                    data.users.forEach(user => {
-                        const chatItem = document.createElement('div');
-                        chatItem.classList.add('chat-item');
-                        chatItem.innerHTML = `
-                            <div class="left">
-                                <img src="./assets/profile.jpg" alt="User Image" class="avatar">
-                                <div class="chat-info">
-                                    <h3>${user.username}</h3>
-                                    <p>Last message here...</p>
-                                </div>
-                            </div>
-                            <div class="right">
-                                <span class="time">10:35 AM</span>
-                                <img src="./assets/1.png" alt="Status" class="status-icon">
-                            </div>
-                        `;
-                        chatListContainer.appendChild(chatItem);
-                    });
-                } else {
-                    alert(data.message);
-                }
+            } catch (error) {
+            console.error("Error fetching chat list:", error);
             }
+        }
 
-            // Logout function
-            document.querySelector(".logout button").addEventListener("click", () => {
-                localStorage.removeItem('token'); 
-                window.location.reload(); 
+        // Call the function to load the chat list
+        loadChatList();
+
+
+// logout......
+        document.getElementById('logoutButton').addEventListener('click', async function() {
+        const token = localStorage.getItem('token'); // Assuming the JWT token is stored in localStorage
+
+        if (!token) {
+            console.log("No token found, user already logged out.");
+            return;
+        }
+
+        try {
+            // Send a POST request to logout the user (invalidate the token)
+            const response = await fetch('http://localhost:5000/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
             });
+
+            const data = await response.json();
+
+            if (response.ok) {
+            // If logout is successful, remove token from localStorage
+            localStorage.removeItem('token');
+            
+            // Optionally, redirect to login page or homepage
+            window.location.href = "index.html"; // Redirect to login page
+            } else {
+            console.log("Logout failed:", data.message);
+            }
+        } catch (error) {
+            console.error("Error during logout:", error);
+        }
         });
+
+
+
+        
+
     </script>
+
 </body>
 </html>

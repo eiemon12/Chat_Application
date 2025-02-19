@@ -199,9 +199,11 @@
                     alert('Login successful!');
                     // Optionally store the token (in localStorage, sessionStorage, etc.)
                     console.log('JWT Token:', data.token);
+                    // After successful login, save the token in localStorage
+                    localStorage.setItem("token", data.token);  // Using 'data.token' instead of 'response.token'
 
                     // Redirect user to the dashboard
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'abdullah.html';
                 } else {
                     alert(data.message); // Show error message from server
                 }
